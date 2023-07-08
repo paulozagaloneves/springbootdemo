@@ -34,6 +34,7 @@ public class LogOncePerReqFilter extends OncePerRequestFilter{
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
+        long initialTime=System.currentTimeMillis();
         ContentCachingRequestWrapper cachingRequestWrapper = new ContentCachingRequestWrapper(request);
         ContentCachingResponseWrapper cachingResponseWrapper = new ContentCachingResponseWrapper(response);
 
@@ -60,8 +61,8 @@ public class LogOncePerReqFilter extends OncePerRequestFilter{
                         HttpHeaders::new
                 ));
 
-
-        logReqRes(clientIp, requestBody, responseBody,cachingRequestWrapper.getRequestURI(),cachingRequestWrapper.getMethod(), requestHeaders.toString(), responseHeaders.toString());
+        long requestTime=System.currentTimeMillis() - initialTime;
+        logReqRes(clientIp, requestTime, requestBody, responseBody,cachingRequestWrapper.getRequestURI(),cachingRequestWrapper.getMethod(), requestHeaders.toString(), responseHeaders.toString());
 
         cachingResponseWrapper.copyBodyToResponse();
     }
@@ -78,11 +79,12 @@ public class LogOncePerReqFilter extends OncePerRequestFilter{
         return dataAsString;
     }
 
-    protected void logReqRes(String clientIp, String request,String response,String uri, String httpMethod, String requestHeaders, String responseHeaders) {
+    protected void logReqRes(String clientIp, Long execTime, String request,String response,String uri, String httpMethod, String requestHeaders, String responseHeaders) {
         LogReqRes logReqRes = new LogReqRes();
         logReqRes.setRequest(request);
         logReqRes.setResponse(response);
         logReqRes.setUri(uri);
+        logReqRes.setExecutionTime(execTime);
         logReqRes.setHttpMethod(httpMethod);
         logReqRes.setClientIp(clientIp);
         logReqRes.setRequestHeaders(requestHeaders);

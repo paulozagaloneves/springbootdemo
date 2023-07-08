@@ -29,6 +29,9 @@ public class LogReqRes {
     @Column(name = "ENDPOINT", length = 4000)
     private String uri;
 
+    @Column(name = "EXEC_TIME")
+    private Long executionTime;
+
     @Column(name = "HTTP_METHOD")
     private String httpMethod;
 

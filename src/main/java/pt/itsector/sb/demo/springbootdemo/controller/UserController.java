@@ -1,36 +1,34 @@
 package pt.itsector.sb.demo.springbootdemo.controller;
 
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
+import io.micrometer.observation.annotation.Observed;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import pt.itsector.sb.demo.springbootdemo.dto.UserDtoReq;
 import pt.itsector.sb.demo.springbootdemo.dto.UserDtoRes;
 import pt.itsector.sb.demo.springbootdemo.service.UserService;
+
+import java.util.List;
 
 
 @RestController
 @RequestMapping("/user")
 public class UserController {
 
-    @Autowired
-    UserService userService;
+    private final UserService userService;
 
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
+
+    @Observed(name = "add.users")
     @PostMapping("/add")
     ResponseEntity<UserDtoRes> addUser(@RequestBody UserDtoReq userDto){
         UserDtoRes userDtoRes = userService.addUser(userDto);
         return ResponseEntity.ok(userDtoRes);
     }
 
+    @Observed(name = "update.user")
     @PutMapping("/{id}")
     ResponseEntity<String> updateUser(@RequestBody UserDtoReq userDto, @PathVariable long id){
         try {
@@ -41,6 +39,7 @@ public class UserController {
         return ResponseEntity.ok("User updated successfully.");
     }
 
+    @Observed(name = "get.users")
     @GetMapping
     ResponseEntity<List<UserDtoRes>> getAllUsers(){
         List<UserDtoRes> userDtoResList = userService.getAllUsers();

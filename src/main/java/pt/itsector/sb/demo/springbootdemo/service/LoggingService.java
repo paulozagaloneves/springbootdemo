@@ -14,11 +14,6 @@ public class LoggingService {
 
     @Async
     public void logReqRes(final LogReqRes logReqRes ) {
-        try {
-            Thread.sleep(5000);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
         loggingDao.save(logReqRes);
     }
 }
