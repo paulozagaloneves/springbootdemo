@@ -60,13 +60,17 @@ public class LogOncePerReqFilter extends OncePerRequestFilter{
                         (oldValue, newValue) -> newValue,
                         HttpHeaders::new
                 ));
-
+        String traceId = this.getTraceId(requestHeaders);
         long requestTime=System.currentTimeMillis() - initialTime;
-        logReqRes(clientIp, requestTime, requestBody, responseBody,cachingRequestWrapper.getRequestURI(),cachingRequestWrapper.getMethod(), requestHeaders.toString(), responseHeaders.toString());
+        Integer apiId = (Integer) cachingRequestWrapper.getAttribute(RequestConstants.API_ID);
+        logReqRes(apiId, traceId,clientIp, requestTime, requestBody, responseBody,cachingRequestWrapper.getRequestURI(),cachingRequestWrapper.getMethod(), requestHeaders.toString(), responseHeaders.toString());
 
         cachingResponseWrapper.copyBodyToResponse();
     }
 
+    private String getTraceId(HttpHeaders requestHeaders) {
+        return requestHeaders.getFirst("X-TRACE-ID");
+    }
 
     private String getValueAsString(byte[] contentAsByteArray, String characterEncoding) {
         String dataAsString = "";
@@ -79,8 +83,10 @@ public class LogOncePerReqFilter extends OncePerRequestFilter{
         return dataAsString;
     }
 
-    protected void logReqRes(String clientIp, Long execTime, String request,String response,String uri, String httpMethod, String requestHeaders, String responseHeaders) {
+    protected void logReqRes(Integer apiId, String traceId, String clientIp, Long execTime, String request,String response,String uri, String httpMethod, String requestHeaders, String responseHeaders) {
         LogReqRes logReqRes = new LogReqRes();
+        logReqRes.setApiId(apiId);
+        logReqRes.setTraceId(traceId);
         logReqRes.setRequest(request);
         logReqRes.setResponse(response);
         logReqRes.setUri(uri);
